@@ -6,6 +6,10 @@ The KudoSpace system facilitates the sharing of digital kudos cards by automatin
 
 ### Setup Instructions
 
+### !UPDATE - Project link now available: 
+
+http://kudospace.westus2.cloudapp.azure.com:3000/home
+
 #### 1. Prerequisites & Notes:
 - Docker and Docker Compose
 - Docker Desktop makes this much easier to manage
