@@ -17,7 +17,7 @@ function App(){
     if (loading) return <p>Loading...</p>
 
     return (
-        <Router>
+        <Router basename="/Kudos-Card-Web-App">
             <Routes>
                 <Route path="/" element={<Navigate to="/home" replace />} />
                 <Route path = "/home" element ={
