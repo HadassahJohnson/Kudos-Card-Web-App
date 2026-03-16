@@ -23,116 +23,141 @@ function ProfessorView() {
     const handleCourseManagement = () => navigate('/course-management?create=true');
     const handleSelectKudos = (kudos) => {setSelectedKudo(kudos)};
 
-    // get all the cards for this user 
+    //hard-coded demo data for professor view for github demo
     const getKudos = useCallback(async () => {
-        if (!user?.user_id) return;
-        setLoading(true);
-        setError(null);
-        try {
+    setLoading(true);
+    try {
+        const DEMO_KUDOS = [
+            { card_id: 1, sender: "Alice Johnson", recipient: "Bob Smith", title: "Well Done!", message: "Bob was incredibly helpful during our group project.", date: "Mar 10, 2026", status: "PENDING", class_id: 1 },
+            { card_id: 2, sender: "Carol White", recipient: "Dan Brown", title: "Nice Job!", message: "Dan stayed late to help everyone understand the material.", date: "Mar 12, 2026", status: "PENDING", class_id: 1 },
+            { card_id: 3, sender: "Eve Davis", recipient: "Frank Miller", title: "Great Work!", message: "Frank's presentation was clear and well-researched.", date: "Mar 14, 2026", status: "APPROVED", class_id: 2 },
+            { card_id: 4, sender: "Grace Lee", recipient: "Henry Wilson", title: "Well Done!", message: "Henry always takes time to explain concepts to others.", date: "Mar 15, 2026", status: "DENIED", professor_note: "Insufficient detail provided.", class_id: 2 },
+        ];
 
-            // get cards from db
-            const subRes = await authFetch(`${BASE_URL}/kudo-card/list/submitted?professor_id=${user.user_id}`);
-            const subList = await subRes.json();
-            const revRes = await authFetch(`${BASE_URL}/kudo-card/list/reviewed?professor_id=${user.user_id}`);
-            const revList = await revRes.json();
-            if (!subRes.ok || !revRes.ok) {
-                throw new Error('Failed to authFetch card lists');
-            }
+        setSubmittedKudos(DEMO_KUDOS.filter(k => k.status === "PENDING"));
+        setReviewedKudos(DEMO_KUDOS.filter(k => k.status !== "PENDING"));
+        setHasClass(true);
+    } catch (err) {
+        setError('Failed to load kudos.');
+    } finally {
+        setLoading(false);
+    }
+}, []);
 
-            // gets card info
-            const subCardIds = subList.card_id || [];
-            const revCardIds = revList.card_id || [];
-            const allCardsIds = [...new Set([...subCardIds, ...revCardIds])];
-            const cardDetails = await Promise.all(allCardsIds.map(cardId => 
-                getCard(cardId)));
+useEffect(() => {
+    getKudos();
+}, [getKudos]);
 
-            // sort by date
-            cardDetails.sort((a, b) => {
-                const dateA = new Date(a.created_at?.replace(/\[UTC\]$/, '') || 0);
-                const dateB = new Date(b.created_at?.replace(/\[UTC\]$/, '') || 0);
-                return dateB - dateA;
-            });
+    // get all the cards for this user 
+    // const getKudos = useCallback(async () => {
+    //     if (!user?.user_id) return;
+    //     setLoading(true);
+    //     setError(null);
+    //     try {
 
-            // get the name of each user
-            const userIds = new Set();
-            cardDetails.forEach(kudo => {
-                userIds.add(kudo.sender_id);
-                userIds.add(kudo.recipient_id);
-            });
-            const userNamesMap = {};
-            await Promise.all(
-                Array.from(userIds).map(async (userId) => {
-                    userNamesMap[userId] = await getUserInfo(userId);
-                })
-            );
+    //         // get cards from db
+    //         const subRes = await authFetch(`${BASE_URL}/kudo-card/list/submitted?professor_id=${user.user_id}`);
+    //         const subList = await subRes.json();
+    //         const revRes = await authFetch(`${BASE_URL}/kudo-card/list/reviewed?professor_id=${user.user_id}`);
+    //         const revList = await revRes.json();
+    //         if (!subRes.ok || !revRes.ok) {
+    //             throw new Error('Failed to authFetch card lists');
+    //         }
 
-            // get class list
-            const classList = await getClasses();
-            const classNamesMap = {};
-            classList.forEach((c) => {
-                classNamesMap[c.id] = c.name;
-            });
-            setHasClass(Object.keys(classNamesMap).length > 0 );
+    //         // gets card info
+    //         const subCardIds = subList.card_id || [];
+    //         const revCardIds = revList.card_id || [];
+    //         const allCardsIds = [...new Set([...subCardIds, ...revCardIds])];
+    //         const cardDetails = await Promise.all(allCardsIds.map(cardId => 
+    //             getCard(cardId)));
 
-            const formatKudo = (kudo) => {
+    //         // sort by date
+    //         cardDetails.sort((a, b) => {
+    //             const dateA = new Date(a.created_at?.replace(/\[UTC\]$/, '') || 0);
+    //             const dateB = new Date(b.created_at?.replace(/\[UTC\]$/, '') || 0);
+    //             return dateB - dateA;
+    //         });
 
-                // format the created_at date
-                let formattedDate = "-";
-                if (kudo.created_at) {
-                    try {
-                        const cleanedDate = kudo.created_at.replace(/\[UTC\]$/, '');
-                        const date = new Date(cleanedDate);
-                        if (!isNaN(date.getTime())) {
-                            formattedDate = date.toLocaleDateString('en-US', {
-                                year: 'numeric',
-                                month: 'short',
-                                day: 'numeric',
-                                hour: 'numeric',
-                                minute: '2-digit',
-                                hour12: true
-                            });
-                        }
-                    } catch (err) {
-                        console.error('Error formatting date:', err);
-                    }
-                } 
+    //         // get the name of each user
+    //         const userIds = new Set();
+    //         cardDetails.forEach(kudo => {
+    //             userIds.add(kudo.sender_id);
+    //             userIds.add(kudo.recipient_id);
+    //         });
+    //         const userNamesMap = {};
+    //         await Promise.all(
+    //             Array.from(userIds).map(async (userId) => {
+    //                 userNamesMap[userId] = await getUserInfo(userId);
+    //             })
+    //         );
 
-                // format card data for display 
-                return {
-                    id: kudo.card_id,
-                    class_id: kudo.class_id,
-                    class_name: classNamesMap[kudo.class_id] || "Unknown class",
-                    recipient: userNamesMap[kudo.recipient_id] || kudo.recipient_id,
-                    sender: userNamesMap[kudo.sender_id] || kudo.sender_id,
-                    title: kudo.title,
-                    status: kudo.status,
-                    date: formattedDate || "-",
-                    imageUrl: kudo.imageUrl || null,
-                    message: kudo.content,
-                    professor_note: kudo.professor_note
-                };
-            };
+    //         // get class list
+    //         const classList = await getClasses();
+    //         const classNamesMap = {};
+    //         classList.forEach((c) => {
+    //             classNamesMap[c.id] = c.name;
+    //         });
+    //         setHasClass(Object.keys(classNamesMap).length > 0 );
 
-            const sub = cardDetails
-                .filter(kudo => kudo.status === "PENDING")
-                .map(formatKudo);
-            const rev = cardDetails
-                .filter(kudo => kudo.status !== "PENDING")
-                .map(formatKudo);
-            setReviewedKudos(rev);
-            setSubmittedKudos(sub);
+    //         const formatKudo = (kudo) => {
+
+    //             // format the created_at date
+    //             let formattedDate = "-";
+    //             if (kudo.created_at) {
+    //                 try {
+    //                     const cleanedDate = kudo.created_at.replace(/\[UTC\]$/, '');
+    //                     const date = new Date(cleanedDate);
+    //                     if (!isNaN(date.getTime())) {
+    //                         formattedDate = date.toLocaleDateString('en-US', {
+    //                             year: 'numeric',
+    //                             month: 'short',
+    //                             day: 'numeric',
+    //                             hour: 'numeric',
+    //                             minute: '2-digit',
+    //                             hour12: true
+    //                         });
+    //                     }
+    //                 } catch (err) {
+    //                     console.error('Error formatting date:', err);
+    //                 }
+    //             } 
+
+    //             // format card data for display 
+    //             return {
+    //                 id: kudo.card_id,
+    //                 class_id: kudo.class_id,
+    //                 class_name: classNamesMap[kudo.class_id] || "Unknown class",
+    //                 recipient: userNamesMap[kudo.recipient_id] || kudo.recipient_id,
+    //                 sender: userNamesMap[kudo.sender_id] || kudo.sender_id,
+    //                 title: kudo.title,
+    //                 status: kudo.status,
+    //                 date: formattedDate || "-",
+    //                 imageUrl: kudo.imageUrl || null,
+    //                 message: kudo.content,
+    //                 professor_note: kudo.professor_note
+    //             };
+    //         };
+
+    //         const sub = cardDetails
+    //             .filter(kudo => kudo.status === "PENDING")
+    //             .map(formatKudo);
+    //         const rev = cardDetails
+    //             .filter(kudo => kudo.status !== "PENDING")
+    //             .map(formatKudo);
+    //         setReviewedKudos(rev);
+    //         setSubmittedKudos(sub);
             
-        } catch (err) {
-            console.error('Error fetching kudos:', err);
-            setError('Failed to load kudos. Please try again.');
-        } finally {
-            setLoading(false);}
-    }, [user?.user_id, BASE_URL]);
+    //     } catch (err) {
+    //         console.error('Error fetching kudos:', err);
+    //         setError('Failed to load kudos. Please try again.');
+    //     } finally {
+    //         setLoading(false);}
+    // }, [user?.user_id, BASE_URL]);
 
-    useEffect(() => {
-        if (!user?.user_id) return;
-        Promise.all([getKudos()])
-    }, [getKudos, user?.user_id]);
+    // useEffect(() => {
+    //     if (!user?.user_id) return;
+    //     Promise.all([getKudos()])
+    // }, [getKudos, user?.user_id]);
 
     return (
         <div className="app-container">

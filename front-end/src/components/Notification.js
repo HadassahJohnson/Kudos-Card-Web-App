@@ -10,15 +10,23 @@ function Notification({ open, onClose }) {
     useEffect(() => {
         if (!open || !user?.user_id) return;
 
+        // const fetchNotifications = async () => {
+        //     try {
+        //         const res = await authFetch(`${BASE_URL}/notifications?recipient=${user.user_id}`);
+        //         const data = await res.json();
+        //         setItems(data);
+        //     } catch (err) {
+        //         console.error("Failed to load notifications:", err);
+        //     }
+        // };
+
         const fetchNotifications = async () => {
-            try {
-                const res = await authFetch(`${BASE_URL}/notifications?recipient=${user.user_id}`);
-                const data = await res.json();
-                setItems(data);
-            } catch (err) {
-                console.error("Failed to load notifications:", err);
-            }
-        };
+    setItems([
+        { id: 1, title: "Kudos Approved", message: "Your kudos for Bob Smith was approved.", time: "Mar 15, 2026", read: false },
+        { id: 2, title: "Kudos Approved", message: "Your kudos for Alice Johnson was approved.", time: "Mar 14, 2026", read: false },
+        { id: 3, title: "New Kudos Submitted", message: "A new kudos card is pending your review.", time: "Mar 13, 2026", read: true },
+    ]);
+};
 
         fetchNotifications();
 

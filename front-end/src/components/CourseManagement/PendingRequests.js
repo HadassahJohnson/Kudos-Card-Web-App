@@ -8,52 +8,63 @@ function PendingRequests({ classId, userId, onStudentApproved }) {
 
   const BASE_URL = process.env.REACT_APP_API_BASE_URL;
 
+  //hard-coded for github demoing
   useEffect(() => {
-  if (!userId) return;
+    // DEMO MODE - no pending requests
+    setLoading(false);
+    setPendingRequests([]);
+}, []);
 
-  const fetchPendingRequests = async () => {
-    setLoading(true);
-    try {
-      const res = await authFetch(`${BASE_URL}/class/pending-requests?instructor_id=${userId}`);
-      if (!res.ok) throw new Error("Failed to fetch pending requests");
-      const data = await res.json();
-      // Filter only for the selected class
-      const filtered = classId ? data.filter(r => r.class_id === classId) : data;
-      setPendingRequests(filtered);
-      setErrorMessage("");
-    } catch (err) {
-      console.error(err);
-      setErrorMessage("Failed to load pending requests.");
-    } finally {
-      setLoading(false);
-    }
-  };
+const handleRequestUpdate = async () => {
+    setErrorMessage("Demo mode: backend unavailable.");
+};
 
-  fetchPendingRequests();
-}, [userId, classId]);
+  // useEffect(() => {
+  // if (!userId) return;
+
+  //   const fetchPendingRequests = async () => {
+  //     setLoading(true);
+  //     try {
+  //       const res = await authFetch(`${BASE_URL}/class/pending-requests?instructor_id=${userId}`);
+  //       if (!res.ok) throw new Error("Failed to fetch pending requests");
+  //       const data = await res.json();
+  //       // Filter only for the selected class
+  //       const filtered = classId ? data.filter(r => r.class_id === classId) : data;
+  //       setPendingRequests(filtered);
+  //       setErrorMessage("");
+  //     } catch (err) {
+  //       console.error(err);
+  //       setErrorMessage("Failed to load pending requests.");
+  //     } finally {
+  //       setLoading(false);
+  //     }
+  //   };
+
+  //   fetchPendingRequests();
+  // }, [userId, classId]);
 
 
-  const handleRequestUpdate = async (studentId, action) => {
-    try {
-      const res = await authFetch(
-        `${BASE_URL}/class/enrollment/${studentId}/${classId}?action=${action}&instructor_id=${userId}`,
-        { method: "PATCH" }
-      );
-      if (!res.ok) throw new Error("Failed to update enrollment");
+  // const handleRequestUpdate = async (studentId, action) => {
+  //   try {
+  //     const res = await authFetch(
+  //       `${BASE_URL}/class/enrollment/${studentId}/${classId}?action=${action}&instructor_id=${userId}`,
+  //       { method: "PATCH" }
+  //     );
+  //     if (!res.ok) throw new Error("Failed to update enrollment");
 
-      setPendingRequests((prev) => prev.filter((r) => r.user_id !== studentId));
+  //     setPendingRequests((prev) => prev.filter((r) => r.user_id !== studentId));
 
-      if (onStudentApproved) {
-        const clsRes = await authFetch(`${BASE_URL}/class/${classId}/users`);
-        const students = await clsRes.json();
-        console.log("Students updated:", students);
-        onStudentApproved({class_id : classId, students});
-      }
-    } catch (err) {
-      console.error(err);
-      setErrorMessage(`Failed to ${action} student.`);
-    }
-  };
+  //     if (onStudentApproved) {
+  //       const clsRes = await authFetch(`${BASE_URL}/class/${classId}/users`);
+  //       const students = await clsRes.json();
+  //       console.log("Students updated:", students);
+  //       onStudentApproved({class_id : classId, students});
+  //     }
+  //   } catch (err) {
+  //     console.error(err);
+  //     setErrorMessage(`Failed to ${action} student.`);
+  //   }
+  // };
 
   if (loading) return <p>Loading pending requests...</p>;
   if (errorMessage) return <p style={{ color: "red" }}>{errorMessage}</p>;

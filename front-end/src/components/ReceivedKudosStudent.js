@@ -11,9 +11,9 @@ function ReceivedKudosStudent({ received }) {
   const [showSort, setShowSort] = useState(false);
 
   const imageMap = {
-    'Well Done!': '/images/wellDoneNew.png',
-    'Nice Job!': '/images/niceJobNew.png',
-    'Great Work!': '/images/greatWorkNew.png',
+    'Well Done!': process.env.PUBLIC_URL + '/images/wellDoneNew.png',
+    'Nice Job!': process.env.PUBLIC_URL + '/images/niceJobNew.png',
+    'Great Work!': process.env.PUBLIC_URL + '/images/greatWorkNew.png',
   };
 
   useEffect(() => {
@@ -23,25 +23,35 @@ function ReceivedKudosStudent({ received }) {
     });
   }, [localReceived]);
 
-  // show full card and markAsRead
+  //hard-coded for demo
   const handleCardClick = async (kudo) => {
     setSelectedCard(kudo);
     if (kudo.status === 'APPROVED') {
-      setLocalReceived(prev =>
-        prev.map(k => k.id === kudo.id ? { ...k, status: "RECEIVED" } : k)
-      );
-
-      try {
-        const BASE_URL = process.env.REACT_APP_API_BASE_URL;
-        await authFetch(`${BASE_URL}/kudo-card/${kudo.id}/markAsRead`, {
-          method: "PATCH",
-        });
-        console.log(`Kudo ${kudo.id} marked as RECEIVED`);
-      } catch (err) {
-        console.error(`Error updating kudo ${kudo.id} as RECEIVED:`, err);
-      }
+        setLocalReceived(prev =>
+            prev.map(k => k.id === kudo.id ? { ...k, status: "RECEIVED" } : k)
+        );
+        // DEMO MODE - skip markAsRead API call
     }
-  };
+};
+  // show full card and markAsRead
+  // const handleCardClick = async (kudo) => {
+  //   setSelectedCard(kudo);
+  //   if (kudo.status === 'APPROVED') {
+  //     setLocalReceived(prev =>
+  //       prev.map(k => k.id === kudo.id ? { ...k, status: "RECEIVED" } : k)
+  //     );
+
+  //     try {
+  //       const BASE_URL = process.env.REACT_APP_API_BASE_URL;
+  //       await authFetch(`${BASE_URL}/kudo-card/${kudo.id}/markAsRead`, {
+  //         method: "PATCH",
+  //       });
+  //       console.log(`Kudo ${kudo.id} marked as RECEIVED`);
+  //     } catch (err) {
+  //       console.error(`Error updating kudo ${kudo.id} as RECEIVED:`, err);
+  //     }
+  //   }
+  // };
   const sortedKudos = [...localReceived].sort((a, b) => {
     if (selectedSort === "newest") return new Date(b.date) - new Date(a.date);
     if (selectedSort === "oldest") return new Date(a.date) - new Date(b.date);

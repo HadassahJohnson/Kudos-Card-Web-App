@@ -19,53 +19,68 @@ function ReviewedKudosProf( {reviewedKudos = [], onSelect} ) {
     const BASE_URL = process.env.REACT_APP_API_BASE_URL;
     const [isCollapsed, setIsCollapsed] = useState(false);
 
+    //hard-coded for github demo
     useEffect(() => {
-      const fetchClasses = async () => {
-        if (!user?.user_id) return;
-        try {
-          const [activeRes, archivedRes] = await Promise.all([
-            authFetch(`${BASE_URL}/users/${user.user_id}/classes?is_archived=false`),
-            authFetch(`${BASE_URL}/users/${user.user_id}/classes?is_archived=true`),
-          ]);
+        // DEMO MODE
+        setAvailableClasses([
+            { class_id: 1, class_name: "CS101 - Intro to Programming", students: [
+                { id: 101, name: "Alice Johnson", role: "student" },
+                { id: 102, name: "Bob Smith", role: "student" },
+                { id: 103, name: "Carol White", role: "student" },
+            ]},
+            { class_id: 2, class_name: "CS301 - Data Structures", students: [
+                { id: 104, name: "Dan Brown", role: "student" },
+                { id: 105, name: "Eve Davis", role: "student" },
+            ]},
+        ]);
+    }, []);
+    // useEffect(() => {
+    //   const fetchClasses = async () => {
+    //     if (!user?.user_id) return;
+    //     try {
+    //       const [activeRes, archivedRes] = await Promise.all([
+    //         authFetch(`${BASE_URL}/users/${user.user_id}/classes?is_archived=false`),
+    //         authFetch(`${BASE_URL}/users/${user.user_id}/classes?is_archived=true`),
+    //       ]);
 
-          if (!activeRes.ok || !archivedRes.ok) throw new Error("Failed to fetch classes");
+    //       if (!activeRes.ok || !archivedRes.ok) throw new Error("Failed to fetch classes");
 
-          const [activeData, archivedData] = await Promise.all([
-            activeRes.json(),
-            archivedRes.json(),
-          ]);
+    //       const [activeData, archivedData] = await Promise.all([
+    //         activeRes.json(),
+    //         archivedRes.json(),
+    //       ]);
 
-          const allClassIds = [
-            ...(activeData.class_id || []),
-            ...(archivedData.class_id || []),
-          ];
+    //       const allClassIds = [
+    //         ...(activeData.class_id || []),
+    //         ...(archivedData.class_id || []),
+    //       ];
 
-          if (allClassIds.length === 0) {
-            setAvailableClasses([]);
-            return;
-          }
+    //       if (allClassIds.length === 0) {
+    //         setAvailableClasses([]);
+    //         return;
+    //       }
 
-        const detailedClasses = await Promise.all(
-          allClassIds.map(async (id) => {
-            const classRes = await authFetch(`${BASE_URL}/class/${id}`);
-            const classData = await classRes.json();
-            const cls = classData.class[0];
+    //     const detailedClasses = await Promise.all(
+    //       allClassIds.map(async (id) => {
+    //         const classRes = await authFetch(`${BASE_URL}/class/${id}`);
+    //         const classData = await classRes.json();
+    //         const cls = classData.class[0];
 
-            const usersRes = await authFetch(`${BASE_URL}/class/${id}/users`);
-            const students = (await usersRes.json()) || [];
-            return { ...cls, students };
-          })
-        );
-        setAvailableClasses(detailedClasses);
+    //         const usersRes = await authFetch(`${BASE_URL}/class/${id}/users`);
+    //         const students = (await usersRes.json()) || [];
+    //         return { ...cls, students };
+    //       })
+    //     );
+    //     setAvailableClasses(detailedClasses);
 
-        } catch (err) {
-          console.error(err);
-          setAvailableClasses([]);
-        }
-      };
+    //     } catch (err) {
+    //       console.error(err);
+    //       setAvailableClasses([]);
+    //     }
+    //   };
 
-      fetchClasses();
-    }, [user]);
+    //   fetchClasses();
+    // }, [user]);
 
     useEffect(() => {
       if (!selectedClass) {

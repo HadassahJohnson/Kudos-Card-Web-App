@@ -22,86 +22,129 @@ function CourseManagement() {
 
   const BASE_URL = process.env.REACT_APP_API_BASE_URL;
 
+  //hard-coded data for github demoing
   const fetchClasses = useCallback(async () => {
-    if (!userId) return;
+    // DEMO MODE
+    const DEMO_CLASSES = [
+        {
+            class_id: 1,
+            class_name: "CS101 - Intro to Programming",
+            join_code: "ABC123",
+            is_archived: false,
+            students: [
+                { user_id: 101, name: "Alice Johnson", role: "STUDENT" },
+                { user_id: 102, name: "Bob Smith", role: "STUDENT" },
+                { user_id: 103, name: "Carol White", role: "STUDENT" },
+            ]
+        },
+        {
+            class_id: 2,
+            class_name: "CS301 - Data Structures",
+            join_code: "XYZ789",
+            is_archived: false,
+            students: [
+                { user_id: 104, name: "Dan Brown", role: "STUDENT" },
+                { user_id: 105, name: "Eve Davis", role: "STUDENT" },
+            ]
+        },
+        {
+            class_id: 3,
+            class_name: "CS201 - Algorithms",
+            join_code: "OLD456",
+            is_archived: true,
+            students: []
+        }
+    ];
 
-    try {
-      console.log("Fetching classes for user:", userId);
+    setClasses(DEMO_CLASSES.filter(c => !c.is_archived));
+    setArchivedClasses(DEMO_CLASSES.filter(c => c.is_archived));
+    setSelectedClassId(1);
+}, []);
 
-        const [activeRes, archivedRes] = await Promise.all([
-        authFetch(`${BASE_URL}/users/${userId}/classes?is_archived=false`),
-        authFetch(`${BASE_URL}/users/${userId}/classes?is_archived=true`)
-      ]);
-
-      if (!activeRes.ok || !archivedRes.ok)
-        throw new Error("Failed to fetch class lists");
-
-      const [activeData, archivedData] = await Promise.all([
-        activeRes.json(),
-        archivedRes.json(),
-      ]);
-
-      console.log("Active class IDs:", activeData);
-      console.log("Archived class IDs:", archivedData);
-
-      const allClassIds = [
-        ...(activeData.class_id || []),
-        ...(archivedData.class_id || []),
-      ];
-
-      if (allClassIds.length === 0) {
-        setClasses([]);
-        setArchivedClasses([]);
-        return;
-      }
-
-      const detailedClasses = await Promise.all(
-        allClassIds.map(async (id) => {
-          const [clsRes, studentsRes] = await Promise.all([
-            authFetch(`${BASE_URL}/class/${id}`),
-            authFetch(`${BASE_URL}/class/${id}/users`),
-          ]);
-
-          const clsData = await clsRes.json();
-          const studentsData = await studentsRes.json();
-
-          return {
-            ...clsData.class[0],
-            students: studentsData,
-          };
-        })
-      );
-
-      const activeClasses = detailedClasses.filter((c) => !c.is_archived);
-      const archivedList = detailedClasses.filter((c) => c.is_archived);
-
-      setClasses(activeClasses);
-      setArchivedClasses(archivedList);
-
-      setSelectedClassId((prev) => {
-        if (prev && detailedClasses.some((c) => c.class_id === prev)) return prev;
-        const firstActive = activeClasses[0] || archivedList[0];
-        return firstActive ? firstActive.class_id : null;
-      });
-
-      console.log("Detailed class info:", detailedClasses);
-    } catch (err) {
-      console.error("Error fetching classes:", err);
-      setToast({ message: "Failed to load classes.", type: "error" });
-    }
-  }, [userId, BASE_URL]);
-
-  useEffect(() => {
+useEffect(() => {
     fetchClasses();
-  }, [fetchClasses]);
+}, [fetchClasses]);
 
-  useEffect(() => {
-    if (searchParams.get('create') === 'true') {
-      setShowCreateModal(true);
-      searchParams.delete('create');
-      setSearchParams(searchParams, { replace: true });
-    }
-  }, [searchParams, setSearchParams]);
+  // const fetchClasses = useCallback(async () => {
+  //   if (!userId) return;
+
+  //   try {
+  //     console.log("Fetching classes for user:", userId);
+
+  //       const [activeRes, archivedRes] = await Promise.all([
+  //       authFetch(`${BASE_URL}/users/${userId}/classes?is_archived=false`),
+  //       authFetch(`${BASE_URL}/users/${userId}/classes?is_archived=true`)
+  //     ]);
+
+  //     if (!activeRes.ok || !archivedRes.ok)
+  //       throw new Error("Failed to fetch class lists");
+
+  //     const [activeData, archivedData] = await Promise.all([
+  //       activeRes.json(),
+  //       archivedRes.json(),
+  //     ]);
+
+  //     console.log("Active class IDs:", activeData);
+  //     console.log("Archived class IDs:", archivedData);
+
+  //     const allClassIds = [
+  //       ...(activeData.class_id || []),
+  //       ...(archivedData.class_id || []),
+  //     ];
+
+  //     if (allClassIds.length === 0) {
+  //       setClasses([]);
+  //       setArchivedClasses([]);
+  //       return;
+  //     }
+
+  //     const detailedClasses = await Promise.all(
+  //       allClassIds.map(async (id) => {
+  //         const [clsRes, studentsRes] = await Promise.all([
+  //           authFetch(`${BASE_URL}/class/${id}`),
+  //           authFetch(`${BASE_URL}/class/${id}/users`),
+  //         ]);
+
+  //         const clsData = await clsRes.json();
+  //         const studentsData = await studentsRes.json();
+
+  //         return {
+  //           ...clsData.class[0],
+  //           students: studentsData,
+  //         };
+  //       })
+  //     );
+
+  //     const activeClasses = detailedClasses.filter((c) => !c.is_archived);
+  //     const archivedList = detailedClasses.filter((c) => c.is_archived);
+
+  //     setClasses(activeClasses);
+  //     setArchivedClasses(archivedList);
+
+  //     setSelectedClassId((prev) => {
+  //       if (prev && detailedClasses.some((c) => c.class_id === prev)) return prev;
+  //       const firstActive = activeClasses[0] || archivedList[0];
+  //       return firstActive ? firstActive.class_id : null;
+  //     });
+
+  //     console.log("Detailed class info:", detailedClasses);
+  //   } catch (err) {
+  //     console.error("Error fetching classes:", err);
+  //     setToast({ message: "Failed to load classes.", type: "error" });
+  //   }
+  // }, [userId, BASE_URL]);
+
+  // useEffect(() => {
+  //   fetchClasses();
+  // }, [fetchClasses]);
+
+  // useEffect(() => {
+  //   if (searchParams.get('create') === 'true') {
+  //     setShowCreateModal(true);
+  //     searchParams.delete('create');
+  //     setSearchParams(searchParams, { replace: true });
+  //   }
+  // }, [searchParams, setSearchParams]);
 
 const handleClassUpdated = (updateInfo) => {
 

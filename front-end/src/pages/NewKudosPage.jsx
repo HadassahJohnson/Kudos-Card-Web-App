@@ -20,9 +20,9 @@ function NewKudosPage({ onSubmit }) {
 
     const titleOptions = ['Well Done!', 'Nice Job!', 'Great Work!'];
     const imageMap = {
-        'Well Done!': '/images/wellDoneNew.png',
-        'Nice Job!': '/images/niceJobNew.png',
-        'Great Work!': '/images/greatWorkNew.png',
+        'Well Done!': process.env.PUBLIC_URL + '/images/wellDoneNew.png',
+        'Nice Job!': process.env.PUBLIC_URL + '/images/niceJobNew.png',
+        'Great Work!': process.env.PUBLIC_URL + '/images/greatWorkNew.png',
     };
 
     const [selectedImage, setSelectedImage] = useState(imageMap[titleOptions[0]]);
@@ -39,31 +39,54 @@ function NewKudosPage({ onSubmit }) {
     const handleCourseManagement = () => navigate('/course-management?create=true');
     const handleCourseAddition = () => setShowCourseModal(true);
 
+    //HARD-CODED for github demo
     useEffect(() => {
-        getClasses()
-            .then(async (classList) => {
-                setClasses(classList);
+    // DEMO MODE
+    const DEMO_CLASSES = [
+        { id: 1, name: "CS101 - Intro to Programming" },
+        { id: 2, name: "CS301 - Data Structures" },
+    ];
+    const DEMO_ROSTERS = [
+        { id: 1, name: "CS101 - Intro to Programming", roster: [
+            { id: 101, name: "Alice Johnson" },
+            { id: 102, name: "Bob Smith" },
+            { id: 103, name: "Carol White" },
+        ]},
+        { id: 2, name: "CS301 - Data Structures", roster: [
+            { id: 104, name: "Dan Brown" },
+            { id: 105, name: "Eve Davis" },
+        ]},
+    ];
+    setClasses(DEMO_CLASSES);
+    setRosters(DEMO_ROSTERS);
+    setLoading(false);
+}, []);
 
-                if (classList.length === 1) {
-                    setFormData(prev => ({ ...prev, class: classList[0].id }));
-                }
+    // useEffect(() => {
+    //     getClasses()
+    //         .then(async (classList) => {
+    //             setClasses(classList);
 
-                const rostersProm = classList.map(async (c) => {
-                    const res = await authFetch(`${BASE_URL}/class/${c.id}/users`);
-                    const data = await res.json();
-                    const roster = data.filter(student => student.id !== user.user_id);
-                    return { id: c.id, name: c.name, roster: roster };
-                });
-                const rosters = await Promise.all(rostersProm);
-                setRosters(rosters);
-                setLoading(false);
-            })
+    //             if (classList.length === 1) {
+    //                 setFormData(prev => ({ ...prev, class: classList[0].id }));
+    //             }
+
+    //             const rostersProm = classList.map(async (c) => {
+    //                 const res = await authFetch(`${BASE_URL}/class/${c.id}/users`);
+    //                 const data = await res.json();
+    //                 const roster = data.filter(student => student.id !== user.user_id);
+    //                 return { id: c.id, name: c.name, roster: roster };
+    //             });
+    //             const rosters = await Promise.all(rostersProm);
+    //             setRosters(rosters);
+    //             setLoading(false);
+    //         })
             
-            .catch(err => {
-                console.error("Failed to load class and roster data:", err);
-                setLoading(false);
-            });
-    }, [BASE_URL, user?.user_id]);
+    //         .catch(err => {
+    //             console.error("Failed to load class and roster data:", err);
+    //             setLoading(false);
+    //         });
+    // }, [BASE_URL, user?.user_id]);
 
     useEffect(() => {
         if (!editCardId) return;
@@ -281,9 +304,13 @@ function NewKudosPage({ onSubmit }) {
                                         disabled={!formData.class}
                                     >
                                         <option value=""> -- Select a recipient --</option>
-                                        {(rosters.find((r) => r.id === formData.class)?.roster || []).map((s) => (
+                                        //for github demo
+                                        {(rosters.find((r) => String(r.id) === String(formData.class))?.roster || []).map((s) => (
                                             <option key={s.id} value={s.id}>{s.name}</option>
                                         ))}
+                                        {/* {(rosters.find((r) => r.id === formData.class)?.roster || []).map((s) => (
+                                            <option key={s.id} value={s.id}>{s.name}</option>
+                                        ))} */}
                                     </select>
 
                                 </div>

@@ -53,7 +53,7 @@ function Header({ onCreateNew, showNav = true }) {
     <header className="header">
       <div className='logo-title-group' >
         <img
-          src="/updatedLogoV2.png"
+          src={process.env.PUBLIC_URL + "/updatedLogoV2.png"}
           alt="Kudo Space Logo"
           className="logoSmall"
           onClick={handleGoHome}
