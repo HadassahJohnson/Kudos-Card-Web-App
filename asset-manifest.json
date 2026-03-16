@@ -1,0 +1,15 @@
+{
+  "files": {
+    "main.css": "/Kudos-Card-Web-App/static/css/main.469c58f6.css",
+    "main.js": "/Kudos-Card-Web-App/static/js/main.fa512fcb.js",
+    "static/js/453.891556d7.chunk.js": "/Kudos-Card-Web-App/static/js/453.891556d7.chunk.js",
+    "index.html": "/Kudos-Card-Web-App/index.html",
+    "main.469c58f6.css.map": "/Kudos-Card-Web-App/static/css/main.469c58f6.css.map",
+    "main.fa512fcb.js.map": "/Kudos-Card-Web-App/static/js/main.fa512fcb.js.map",
+    "453.891556d7.chunk.js.map": "/Kudos-Card-Web-App/static/js/453.891556d7.chunk.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.469c58f6.css",
+    "static/js/main.fa512fcb.js"
+  ]
+}
